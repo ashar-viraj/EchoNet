@@ -53,6 +53,8 @@ The script will:
 
 ## Database Schema
 
+### Main Table: archive_items
+
 The `archive_items` table contains:
 - `id`: Primary key (auto-increment)
 - `identifier`: Unique identifier from archive.org
@@ -68,6 +70,24 @@ The `archive_items` table contains:
 - `url`: Full URL to the item
 - `created_at`: Record creation timestamp
 - `updated_at`: Record update timestamp (auto-updated)
+
+### Filter Tables: languages, subjects, years
+
+These tables store unique values extracted from the archive items for filtering purposes:
+
+- **languages**: Unique language names
+- **subjects**: Unique subject names
+- **years**: Unique years from publicdate field
+
+To create these tables, run:
+```bash
+psql -U postgres -d echonet -f filter_tables_schema.sql
+```
+
+To populate them from JSON files:
+```bash
+python populate_filter_tables.py
+```
 
 ## Query Examples
 
@@ -99,6 +119,21 @@ SELECT title, language, downloads
 FROM archive_items 
 WHERE language = 'English' 
 ORDER BY downloads DESC;
+```
+
+### Get all available languages
+```sql
+SELECT * FROM languages ORDER BY name;
+```
+
+### Get all available subjects
+```sql
+SELECT * FROM subjects ORDER BY name LIMIT 100;
+```
+
+### Get all available years
+```sql
+SELECT * FROM years ORDER BY year DESC;
 ```
 
 ## Notes
