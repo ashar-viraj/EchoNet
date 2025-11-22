@@ -92,6 +92,8 @@ export default function AudioPage() {
             <Link href="/movies" className="hover:text-sky-200">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200">Audio</Link>
             <Link href="/software" className="hover:text-sky-200">Software</Link>
+            <Link href="/profile" className="text-sky-300 hover:text-sky-100">Profile</Link>
+            <Link href="/login" className="text-slate-400 hover:text-sky-200 underline underline-offset-4">Sign in</Link>
           </nav>
         </div>
       </header>

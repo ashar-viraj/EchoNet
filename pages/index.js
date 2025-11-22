@@ -116,6 +116,8 @@ export default function Home() {
             <Link href="/movies" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Audio</Link>
             <Link href="/software" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Software</Link>
+            <Link href="/profile" className="text-sky-300 hover:text-sky-100 transition">Profile</Link>
+            <Link href="/login" className="text-slate-400 hover:text-sky-200 underline underline-offset-4">Sign in</Link>
           </nav>
         </div>
       </header>
