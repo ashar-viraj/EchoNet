@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./_app";
+import ContactUs from "@/components/ContactUs";
 
 export default function Home() {
   const { user, loading: authLoading, refresh } = useAuth();
@@ -373,6 +374,8 @@ export default function Home() {
           </section>
         </div>
       </main>
+
+      <ContactUs />
 
       <footer className="bg-slate-950/80 border-t border-slate-800 py-6 text-center text-slate-400 relative z-10">
         Access for all · EchoNet {new Date().getFullYear()}

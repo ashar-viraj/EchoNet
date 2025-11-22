@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "./_app";
+import ContactUs from "@/components/ContactUs";
 
 export default function AudioPage() {
   const { user, loading: authLoading, refresh } = useAuth();
@@ -338,6 +339,8 @@ export default function AudioPage() {
           </section>
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 }

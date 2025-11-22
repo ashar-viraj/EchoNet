@@ -1,6 +1,7 @@
 // pages/software.js
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ContactUs from "@/components/ContactUs";
 
 export default function SoftwarePage() {
   const [items, setItems] = useState([]);
@@ -321,6 +322,8 @@ export default function SoftwarePage() {
           </section>
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 }

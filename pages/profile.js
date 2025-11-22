@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import ContactUs from "@/components/ContactUs";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -135,6 +136,8 @@ export default function ProfilePage() {
           )}
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 }

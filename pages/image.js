@@ -1,6 +1,7 @@
 // pages/image.js
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ContactUs from "@/components/ContactUs";
 
 export default function ImagesPage() {
   const [items, setItems] = useState([]);
@@ -320,6 +321,8 @@ export default function ImagesPage() {
           </section>
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 }

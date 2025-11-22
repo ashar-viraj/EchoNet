@@ -1,6 +1,7 @@
 // pages/movies.js
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ContactUs from "@/components/ContactUs";
 
 export default function MoviesPage() {
   const [items, setItems] = useState([]);
@@ -321,6 +322,8 @@ export default function MoviesPage() {
           </section>
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 }

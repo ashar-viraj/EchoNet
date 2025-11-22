@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./_app";
+import ContactUs from "@/components/ContactUs";
 
 export default function TextPage() {
   const { user, loading: authLoading, refresh } = useAuth();
@@ -323,6 +324,8 @@ export default function TextPage() {
           </section>
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 
