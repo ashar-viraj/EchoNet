@@ -6,6 +6,7 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [topViewed, setTopViewed] = useState([]);
+  const [topClicked, setTopClicked] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lowData, setLowData] = useState(false);
 
@@ -18,16 +19,22 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    fetch("/api/top-viewed")
+    const loadTopViewed = fetch("/api/top-viewed")
       .then((r) => r.json())
       .then((data) => setTopViewed(data.items || []))
-      .catch(() => setTopViewed([]))
-      .finally(() => setLoading(false));
+      .catch(() => setTopViewed([]));
+
+    const loadTopClicked = fetch("/api/top-clicked")
+      .then((r) => r.json())
+      .then((data) => setTopClicked(data.items || []))
+      .catch(() => setTopClicked([]));
+
+    Promise.allSettled([loadTopViewed, loadTopClicked]).finally(() => setLoading(false));
 
     try {
       const ld = localStorage.getItem("lowData") === "true";
       setLowData(ld);
-    } catch {}
+    } catch { }
   }, []);
 
   const handleSearch = async (e) => {
@@ -52,6 +59,25 @@ export default function Home() {
     if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
     if (n >= 1000) return (n / 1000).toFixed(1) + "K";
     return n;
+  };
+
+  const recordClick = async (identifier) => {
+    if (!identifier) return;
+    try {
+      await fetch('/api/track-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier })
+      });
+    } catch (err) {
+      console.warn('Click track failed', err);
+    }
+  };
+
+  const openLink = async (url, identifier) => {
+    if (!url) return;
+    await recordClick(identifier);
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -144,40 +170,82 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Top viewed */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4 mx-5">Top 50 Monthly Viewed</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Top viewed */}
+          <section>
+            <h2 className="text-xl font-semibold mb-4 mx-5">Top 50 Monthly Viewed</h2>
 
-          {loading ? (
-            <div className="p-6 bg-slate-900/70 border border-slate-800 rounded-2xl">Loading…</div>
-          ) : (
-            <div className="grid gap-4">
-              {topViewed.map((it, i) => (
-                <div
-                  key={i}
-                  className="p-4 mx-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-sky-500/50 shadow-lg hover:shadow-sky-600/25 transition-all duration-500 hover:-translate-y-1.5 hover:scale-[1.02]"
-                >
-                  <div className="font-medium truncate">{it.title}</div>
-                  <div className="text-xs text-slate-300 truncate">
-                    {lowData ? it.language : it.description}
+            {loading ? (
+              <div className="p-6 bg-slate-900/70 border border-slate-800 rounded-2xl">Loading...</div>
+            ) : (
+              <div className="grid gap-4">
+                {topViewed.map((it, i) => (
+                  <div
+                    key={i}
+                    className="p-4 mx-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-sky-500/50 shadow-lg hover:shadow-sky-600/25 transition-all duration-500 hover:-translate-y-1.5"
+                  >
+                    <div className="font-medium card-line-clamp" title={it.title || 'Untitled'}>{it.title || 'Untitled'}</div>
+                    <div className="text-xs text-slate-300 card-line-clamp" title={lowData ? it.language : it.description}>
+                      {lowData ? it.language : it.description}
+                    </div>
+
+                    <div className="mt-2 text-xs text-slate-400 flex gap-4 flex-wrap">
+                      {it.language && (<span>Lang: {it.language}</span>)}
+                      <span>Downloads: {fmt(it.downloads)}</span>
+                      <span>Size: {it.item_size ? Math.round(it.item_size / 1024) + " KB" : "N/A"}</span>
+                    </div>
+
+                    {it.url && (
+                      <button
+                        onClick={() => openLink(it.url, it.identifier)}
+                        className="text-sky-300 text-sm mt-2 inline-block hover:underline"
+                      >
+                        Download
+                      </button>
+                    )}
                   </div>
+                ))}
+              </div>
+            )}
+          </section>
 
-                  <div className="mt-2 text-xs text-slate-400 flex gap-4 flex-wrap">
-                    <span>Lang: {it.language}</span>
-                    <span>Downloads: {fmt(it.downloads)}</span>
-                    <span>Size: {it.item_size ? Math.round(it.item_size / 1024) + " KB" : "N/A"}</span>
+          {/* Top clicked */}
+          <section>
+            <h2 className="text-xl font-semibold mb-4 mx-5">Trending</h2>
+            {loading ? (
+              <div className="p-6 bg-slate-900/70 border border-slate-800 rounded-2xl">Loading...</div>
+            ) : (
+              <div className="grid gap-4">
+                {topClicked.map((it, i) => (
+                  <div
+                    key={`clicked-${i}`}
+                    className="p-4 mx-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-emerald-500/50 shadow-lg hover:shadow-emerald-500/20 transition-all duration-500 hover:-translate-y-1.5"
+                  >
+                    <div className="font-medium card-line-clamp" title={it.title || 'Untitled'}>{it.title || 'Untitled'}</div>
+                    <div className="text-xs text-slate-300 card-line-clamp" title={it.description || it.language}>
+                      {lowData ? it.language : (it.description || 'No description')}
+                    </div>
+
+                    <div className="mt-2 text-xs text-slate-400 flex gap-4 flex-wrap">
+                      <span>Clicks: {fmt(it.clicks)}</span>
+                      {it.language && (<span>Lang: {it.language}</span>)}
+                      <span>Downloads: {fmt(it.downloads)}</span>
+                    </div>
+
+                    {it.url && (
+                      <button
+                        onClick={() => openLink(it.url, it.identifier)}
+                        className="text-emerald-300 text-sm mt-2 inline-block hover:underline"
+                      >
+                        Open
+                      </button>
+                    )}
                   </div>
-
-                  {it.url && (
-                    <a href={it.url} target="_blank" className="text-sky-300 text-sm mt-2 inline-block hover:underline">
-                      Download
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </main>
 
       <footer className="bg-slate-950/80 border-t border-slate-800 py-6 text-center text-slate-400 relative z-10">
@@ -219,6 +287,13 @@ export default function Home() {
         @keyframes rise {
           0% { transform: translateY(20px); opacity: 0; }
           100% { transform: translateY(0); opacity: 1; }
+        }
+        .card-line-clamp {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          word-break: break-word;
         }
       `}</style>
     </div>

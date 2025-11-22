@@ -62,6 +62,25 @@ export default function AudioPage() {
     return `${b} B`;
   };
 
+  const recordClick = async (identifier) => {
+    if (!identifier) return;
+    try {
+      await fetch('/api/track-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier })
+      });
+    } catch (err) {
+      console.warn('Click track failed', err);
+    }
+  };
+
+  const openLink = async (url, identifier) => {
+    if (!url) return;
+    await recordClick(identifier);
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       <header className="bg-slate-950/70 backdrop-blur border-b border-slate-800">
@@ -221,27 +240,23 @@ export default function AudioPage() {
                       </div>
 
                       {it.url && (
-                        <a
+                        <button
                           className="text-sky-300 text-sm font-medium hover:text-sky-200"
-                          href={it.url}
-                          target="_blank"
-                          rel="noreferrer"
+                          onClick={() => openLink(it.url, it.identifier)}
                         >
                           Open
-                        </a>
+                        </button>
                       )}
                     </div>
 
                     <div className="mt-4">
                       {it.url && (
-                        <a
-                          href={it.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => openLink(it.url, it.identifier)}
                           className="inline-flex items-center px-4 py-2 bg-sky-500 text-slate-950 rounded-lg text-sm font-semibold hover:bg-sky-400 transition"
                         >
                           Download for Offline Learning
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
