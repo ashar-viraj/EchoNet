@@ -30,9 +30,37 @@ CREATE INDEX IF NOT EXISTS idx_archive_items_mediatype ON archive_items(mediatyp
 CREATE INDEX IF NOT EXISTS idx_archive_items_language ON archive_items(language);
 CREATE INDEX IF NOT EXISTS idx_archive_items_downloads ON archive_items(downloads DESC);
 CREATE INDEX IF NOT EXISTS idx_archive_items_publicdate ON archive_items(publicdate);
+CREATE INDEX IF NOT EXISTS idx_archive_items_publicdate_downloads ON archive_items(publicdate DESC, downloads DESC);
+-- Composite index to serve the common mediatype + downloads/publicdate sort with a tiebreaker
+CREATE INDEX IF NOT EXISTS idx_archive_items_media_downloads_date_id 
+    ON archive_items(mediatype, downloads DESC, publicdate DESC, identifier);
+
+-- Full-text search support on title/description
+ALTER TABLE archive_items 
+    ADD COLUMN IF NOT EXISTS search_tsv tsvector;
+
+CREATE OR REPLACE FUNCTION archive_items_tsv_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.search_tsv := to_tsvector('simple', coalesce(NEW.title, '') || ' ' || coalesce(NEW.description, ''));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_archive_items_tsv
+    BEFORE INSERT OR UPDATE ON archive_items
+    FOR EACH ROW
+    EXECUTE FUNCTION archive_items_tsv_trigger();
+
+-- Backfill search_tsv for existing rows (run once after adding the column)
+-- UPDATE archive_items SET search_tsv = to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, ''));
+
+CREATE INDEX IF NOT EXISTS idx_archive_items_search_tsv ON archive_items USING GIN (search_tsv);
 
 -- Create GIN index for JSONB subject field for better search
 CREATE INDEX IF NOT EXISTS idx_archive_items_subject ON archive_items USING GIN(subject);
+-- Faster contains lookups when using @>
+CREATE INDEX IF NOT EXISTS idx_archive_items_subject_path ON archive_items USING GIN(subject jsonb_path_ops);
 
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -49,3 +77,9 @@ CREATE TRIGGER update_archive_items_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+SELECT count(*) from archive_items;
+
+SELECT identifier, title, description, language, item_size, downloads, btih, mediatype, subject, publicdate, url 
+FROM archive_items WHERE mediatype = 'movies' ORDER BY downloads DESC, publicdate DESC LIMIT 20 OFFSET 30000
+
+TRUNCATE TABLE archive_items;
