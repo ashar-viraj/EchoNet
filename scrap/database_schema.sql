@@ -62,6 +62,17 @@ CREATE INDEX IF NOT EXISTS idx_archive_items_subject ON archive_items USING GIN(
 -- Faster contains lookups when using @>
 CREATE INDEX IF NOT EXISTS idx_archive_items_subject_path ON archive_items USING GIN(subject jsonb_path_ops);
 
+-- Track item click counts (open/download interactions)
+CREATE TABLE IF NOT EXISTS item_clicks (
+    id SERIAL PRIMARY KEY,
+    identifier VARCHAR(1000) UNIQUE NOT NULL,
+    click_count BIGINT DEFAULT 0,
+    last_clicked TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_item_clicks_count ON item_clicks(click_count DESC);
+CREATE INDEX IF NOT EXISTS idx_item_clicks_last_clicked ON item_clicks(last_clicked DESC);
+
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

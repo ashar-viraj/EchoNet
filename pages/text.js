@@ -62,114 +62,201 @@ export default function TextPage() {
     return `${b} B`;
   };
 
+  const recordClick = async (identifier) => {
+    if (!identifier) return;
+    try {
+      await fetch('/api/track-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier })
+      });
+    } catch (err) {
+      console.warn('Click track failed', err);
+    }
+  };
+
+  const openLink = async (url, identifier) => {
+    if (!url) return;
+    await recordClick(identifier);
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <header className="bg-gray-800 border-b border-gray-700">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+      <header className="bg-slate-950/70 backdrop-blur border-b border-slate-800">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-lg font-semibold">EchoNet</Link>
-          <nav className="space-x-4 text-gray-300">
-            <Link href="/text">Text</Link>
-            <Link href="/image">Image</Link>
-            <Link href="/movies">Movies</Link>
-            <Link href="/audio">Audio</Link>
-            <Link href="/software">Software</Link>
+          <Link href="/" className="text-xl font-semibold tracking-tight text-sky-200">EchoNet</Link>
+          <nav className="flex items-center gap-4 text-sm text-slate-400">
+            <Link href="/text" className="hover:text-sky-200">Text</Link>
+            <Link href="/image" className="hover:text-sky-200">Image</Link>
+            <Link href="/movies" className="hover:text-sky-200">Movies</Link>
+            <Link href="/audio" className="hover:text-sky-200">Audio</Link>
+            <Link href="/software" className="hover:text-sky-200">Software</Link>
           </nav>
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-6 py-10">
         <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="w-full lg:w-80 bg-gray-800 border border-gray-700 rounded p-4">
-            <h3 className="font-semibold mb-3">Filters</h3>
+          <aside className="w-full lg:w-80 space-y-4">
+            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/40">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-sm uppercase tracking-[0.08em] text-slate-300">Filters</h3>
+                <span className="text-[11px] px-2 py-1 rounded-full bg-slate-800 text-slate-400">Text</span>
+              </div>
 
-            <label className="text-sm text-gray-300">Title</label>
-            <input className="w-full px-3 py-2 mt-1 mb-3 bg-gray-700 border border-gray-600 rounded text-white"
-                   value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+              <div className="space-y-3">
+                <label className="block text-xs uppercase tracking-wide text-slate-400">Title / Description</label>
+                <input
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                  placeholder="Search..."
+                  value={search}
+                  onChange={e => { setSearch(e.target.value); setPage(1); }}
+                />
 
-            <label className="text-sm text-gray-300">Language</label>
-            <select className="w-full px-3 py-2 mt-1 mb-3 bg-gray-700 border border-gray-600 rounded"
-                    value={filters.language || ''} onChange={e => changeFilter('language', e.target.value || null)}>
-              <option value="">All</option>
-              {availableFilters.languages.map((l) => <option key={l} value={l}>{l}</option>)}
-            </select>
+                <label className="block text-xs uppercase tracking-wide text-slate-400">Language</label>
+                <select
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-sky-400"
+                  value={filters.language || ''}
+                  onChange={e => changeFilter('language', e.target.value || null)}
+                >
+                  <option value="">All</option>
+                  {availableFilters.languages.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
 
-            <label className="text-sm text-gray-300">Year</label>
-            <select className="w-full px-3 py-2 mt-1 mb-3 bg-gray-700 border border-gray-600 rounded"
-                    value={filters.year || ''} onChange={e => changeFilter('year', e.target.value || null)}>
-              <option value="">All</option>
-              {availableFilters.years.map((y) => <option key={y} value={y}>{y}</option>)}
-            </select>
+                <label className="block text-xs uppercase tracking-wide text-slate-400">Year</label>
+                <select
+                  className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-sky-400"
+                  value={filters.year || ''}
+                  onChange={e => changeFilter('year', e.target.value || null)}
+                >
+                  <option value="">All</option>
+                  {availableFilters.years.map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
 
-            <label className="text-sm text-gray-300">Subjects</label>
-            <div className="flex flex-wrap gap-2 mt-2 max-h-40 overflow-auto">
-              {availableFilters.subjects.slice(0, 60).map((s) => {
-                const sel = Array.isArray(filters.subject) ? filters.subject.includes(s) : filters.subject === s;
-                return (
-                  <button key={s} onClick={() => {
-                    const cur = Array.isArray(filters.subject) ? filters.subject.slice() : (filters.subject ? [filters.subject] : []);
-                    if (cur.includes(s)) cur.splice(cur.indexOf(s), 1); else cur.push(s);
-                    changeFilter('subject', cur.length ? cur : null);
-                  }}
-                          className={`px-2 py-1 text-xs rounded ${sel ? 'bg-cyan-600 text-black' : 'bg-gray-700 text-gray-200'}`}>
-                    {s}
-                  </button>
-                );
-              })}
-            </div>
+                <label className="block text-xs uppercase tracking-wide text-slate-400">Subjects</label>
+                <div className="flex flex-wrap gap-2 max-h-56 overflow-auto">
+                  {availableFilters.subjects.map((s) => {
+                    const sel = Array.isArray(filters.subject) ? filters.subject.includes(s) : filters.subject === s;
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => {
+                          const cur = Array.isArray(filters.subject) ? filters.subject.slice() : (filters.subject ? [filters.subject] : []);
+                          if (cur.includes(s)) cur.splice(cur.indexOf(s), 1); else cur.push(s);
+                          changeFilter('subject', cur.length ? cur : null);
+                        }}
+                        className={`px-3 py-1.5 text-xs rounded-full border transition ${
+                          sel
+                            ? 'bg-sky-500/20 border-sky-400 text-sky-100'
+                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => { setFilters({}); setSearch(''); setPage(1); }} className="px-3 py-2 bg-gray-700 rounded text-gray-200">Clear</button>
-              <button onClick={() => fetchData()} className="px-3 py-2 bg-cyan-600 rounded text-black">Apply</button>
+              <div className="mt-5 flex gap-2">
+                <button
+                  onClick={() => { setFilters({}); setSearch(''); setPage(1); }}
+                  className="flex-1 px-3 py-2 rounded-lg border border-slate-700 text-slate-200 hover:border-slate-500 transition"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => fetchData()}
+                  className="flex-1 px-3 py-2 rounded-lg bg-sky-500 text-slate-950 font-semibold hover:bg-sky-400 transition"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
           </aside>
 
-          <section className="flex-1">
-            <div className="mb-4 flex items-center justify-between">
-              <h1 className="text-2xl font-semibold">Text</h1>
-              <div className="text-sm text-gray-400">Found {total}</div>
-            </div>
-
-            <div className="mb-4 flex justify-end">
-              <select value={filters.sort || ""} onChange={(e) => changeFilter("sort", e.target.value)}
-                      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm">
-                <option value="">Sort By</option>
-                <option value="downloads_desc">Downloads (High → Low)</option>
-                <option value="downloads_asc">Downloads (Low → High)</option>
-                <option value="year_desc">Year (Newest → Oldest)</option>
-                <option value="year_asc">Year (Oldest → Newest)</option>
-                <option value="size_desc">Size (Large → Small)</option>
-                <option value="size_asc">Size (Small → Large)</option>
-              </select>
+          <section className="flex-1 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Library</p>
+                <h1 className="text-3xl font-semibold text-slate-50">Text</h1>
+                <div className="text-sm text-slate-400 mt-1">Found {total} items</div>
+              </div>
+              <div>
+                <select
+                  value={filters.sort || ""}
+                  onChange={(e) => changeFilter("sort", e.target.value)}
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm focus:border-sky-400 focus:outline-none"
+                >
+                  <option value="">Sort By</option>
+                  <option value="downloads_desc">Downloads (High to Low)</option>
+                  <option value="downloads_asc">Downloads (Low to High)</option>
+                  <option value="year_desc">Year (Newest First)</option>
+                  <option value="year_asc">Year (Oldest First)</option>
+                  <option value="size_desc">Size (Large to Small)</option>
+                  <option value="size_asc">Size (Small to Large)</option>
+                </select>
+              </div>
             </div>
 
             {loading ? (
-              <div className="p-6 bg-gray-800 border border-gray-700 rounded">Loading…</div>
-            ) : items.length === 0 ? (
-              <div className="p-6 bg-gray-800 border border-gray-700 rounded">No items. Try adjusting filters.</div>
-            ) : (
               <div className="grid gap-4">
+                {[...Array(3)].map((_, idx) => (
+                  <div key={idx} className="p-5 bg-slate-900/70 border border-slate-800 rounded-2xl animate-pulse">
+                    <div className="h-4 w-1/3 bg-slate-800 rounded mb-2"></div>
+                    <div className="h-3 w-2/3 bg-slate-800 rounded mb-4"></div>
+                    <div className="h-3 w-1/2 bg-slate-800 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            ) : items.length === 0 ? (
+              <div className="p-6 bg-slate-900/70 border border-slate-800 rounded-2xl text-slate-300">
+                No items. Try adjusting filters.
+              </div>
+            ) : (
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                 {items.map((it, i) => (
-                  <div key={`${it.identifier}-${i}`} className="p-4 bg-gray-800 border border-gray-700 rounded">
-                    <div className="flex justify-between">
-                      <div className="min-w-0">
-                        <div className="font-medium truncate">{it.title}</div>
-                        <div className="text-sm text-gray-400 truncate">{lowData ? (it.language || "N/A") : (it.description || "")}</div>
-                        <div className="mt-2 text-xs text-gray-400 flex gap-4">
-                          <span>Lang: {it.language || 'N/A'}</span>
-                          <span>Downloads: {it.downloads || 0}</span>
-                          <span>Size: {fmtSize(it.item_size)}</span>
+                  <div key={`${it.identifier}-${i}`} className="p-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-sky-500/60 transition">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <div
+                          className="font-semibold text-lg text-slate-50 truncate"
+                          title={it.title || 'Untitled'}
+                        >
+                          {it.title || 'Untitled'}
+                        </div>
+                        <div
+                          className="text-sm text-slate-400 line-clamp-2"
+                          title={lowData ? (it.language || "N/A") : (it.description || "No description")}
+                        >
+                          {lowData ? (it.language || "N/A") : (it.description || "No description")}
+                        </div>
+                        <div className="mt-2 text-xs text-slate-400 flex flex-wrap gap-4">
+                          <span className="px-2 py-1 rounded-full bg-slate-800 border border-slate-700">Lang: {it.language || 'N/A'}</span>
+                          <span className="px-2 py-1 rounded-full bg-slate-800 border border-slate-700">Downloads: {it.downloads || 0}</span>
+                          <span className="px-2 py-1 rounded-full bg-slate-800 border border-slate-700">Size: {fmtSize(it.item_size)}</span>
                         </div>
                       </div>
 
-                      {it.url && <a className="ml-4 text-cyan-300" href={it.url} target="_blank" rel="noreferrer">Open</a>}
+                      {it.url && (
+                        <button
+                          className="text-sky-300 text-sm font-medium hover:text-sky-200"
+                          onClick={() => openLink(it.url, it.identifier)}
+                        >
+                          Open
+                        </button>
+                      )}
                     </div>
 
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <div className="mt-4">
                       {it.url && (
-                        <a href={it.url} target="_blank" rel="noopener noreferrer"
-                           className="px-3 py-2 bg-green-600 text-black rounded text-sm font-medium">
+                        <button
+                          onClick={() => openLink(it.url, it.identifier)}
+                          className="inline-flex items-center px-4 py-2 bg-sky-500 text-slate-950 rounded-lg text-sm font-semibold hover:bg-sky-400 transition"
+                        >
                           Download for Offline Learning
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -177,11 +264,23 @@ export default function TextPage() {
               </div>
             )}
 
-            <div className="mt-6 flex items-center justify-between">
-              <div className="text-sm text-gray-400">Page {page} / {totalPages}</div>
+            <div className="pt-4 flex items-center justify-between text-sm text-slate-400">
+              <div>Page {page} / {totalPages}</div>
               <div className="flex gap-2">
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} className="px-3 py-1 bg-gray-700 rounded">Previous</button>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} className="px-3 py-1 bg-gray-700 rounded">Next</button>
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  Next
+                </button>
               </div>
             </div>
           </section>
