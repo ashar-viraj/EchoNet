@@ -30,6 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_archive_items_mediatype ON archive_items(mediatyp
 CREATE INDEX IF NOT EXISTS idx_archive_items_language ON archive_items(language);
 CREATE INDEX IF NOT EXISTS idx_archive_items_downloads ON archive_items(downloads DESC);
 CREATE INDEX IF NOT EXISTS idx_archive_items_publicdate ON archive_items(publicdate);
+CREATE INDEX IF NOT EXISTS idx_archive_items_publicdate_downloads ON archive_items(publicdate DESC, downloads DESC);
 
 -- Create GIN index for JSONB subject field for better search
 CREATE INDEX IF NOT EXISTS idx_archive_items_subject ON archive_items USING GIN(subject);
@@ -49,3 +50,9 @@ CREATE TRIGGER update_archive_items_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+SELECT count(*) from archive_items;
+
+SELECT identifier, title, description, language, item_size, downloads, btih, mediatype, subject, publicdate, url 
+FROM archive_items WHERE mediatype = 'movies' ORDER BY downloads DESC, publicdate DESC LIMIT 20 OFFSET 30000
+
+TRUNCATE TABLE archive_items;

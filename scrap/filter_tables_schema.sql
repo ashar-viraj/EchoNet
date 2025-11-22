@@ -32,3 +32,4 @@ COMMENT ON TABLE languages IS 'Stores all unique languages found in archive item
 COMMENT ON TABLE subjects IS 'Stores all unique subjects found in archive items';
 COMMENT ON TABLE years IS 'Stores all unique years found in archive items publicdate field';
 
+Select count(*) from years
