@@ -8,6 +8,7 @@ export default function MoviesPage() {
   const [filters, setFilters] = useState({});
   const [availableFilters, setAvailableFilters] = useState({ languages: [], subjects: [], years: [] });
   const [page, setPage] = useState(1);
+  const [pageInput, setPageInput] = useState("1");
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
@@ -19,6 +20,10 @@ export default function MoviesPage() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filters, search]);
+
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -79,6 +84,14 @@ export default function MoviesPage() {
     if (!url) return;
     await recordClick(identifier);
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const goToPage = () => {
+    const nextPage = parseInt(pageInput, 10);
+    if (Number.isNaN(nextPage)) return;
+    const maxPage = Math.max(1, totalPages || 1);
+    const clamped = Math.min(Math.max(1, nextPage), maxPage);
+    setPage(clamped);
   };
 
   return (
@@ -257,7 +270,7 @@ export default function MoviesPage() {
                           onClick={() => openLink(it.url, it.identifier)}
                           className="inline-flex items-center px-4 py-2 bg-sky-500 text-slate-950 rounded-lg text-sm font-semibold hover:bg-sky-400 transition"
                         >
-                          Download for Offline Learning
+                          Download for Offline Access
                         </button>
                       )}
                     </div>
@@ -266,8 +279,28 @@ export default function MoviesPage() {
               </div>
             )}
 
-            <div className="pt-4 flex items-center justify-between text-sm text-slate-400">
-              <div>Page {page} / {totalPages}</div>
+            <div className="pt-4 flex items-center justify-between text-sm text-slate-400 gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span>Page {page} / {totalPages}</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value.replace(/[^0-9]/g, ""))}
+                    onKeyDown={(e) => e.key === "Enter" && goToPage()}
+                    className="w-20 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:border-sky-400 focus:outline-none"
+                    aria-label="Go to page"
+                  />
+                  <button
+                    onClick={goToPage}
+                    className="px-3 py-2 rounded-lg bg-sky-500 text-slate-950 font-semibold hover:bg-sky-400 transition"
+                  >
+                    Go
+                  </button>
+                </div>
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}

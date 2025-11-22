@@ -1,13 +1,16 @@
 // pages/audio.js
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "./_app";
 
 export default function AudioPage() {
+  const { user, loading: authLoading, refresh } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({});
   const [availableFilters, setAvailableFilters] = useState({ languages: [], subjects: [], years: [] });
   const [page, setPage] = useState(1);
+  const [pageInput, setPageInput] = useState("1");
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
@@ -19,6 +22,10 @@ export default function AudioPage() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filters, search]);
+
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -81,6 +88,14 @@ export default function AudioPage() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const goToPage = () => {
+    const nextPage = parseInt(pageInput, 10);
+    if (Number.isNaN(nextPage)) return;
+    const maxPage = Math.max(1, totalPages || 1);
+    const clamped = Math.min(Math.max(1, nextPage), maxPage);
+    setPage(clamped);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       <header className="bg-slate-950/70 backdrop-blur border-b border-slate-800">
@@ -92,8 +107,23 @@ export default function AudioPage() {
             <Link href="/movies" className="hover:text-sky-200">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200">Audio</Link>
             <Link href="/software" className="hover:text-sky-200">Software</Link>
-            <Link href="/profile" className="text-sky-300 hover:text-sky-100">Profile</Link>
-            <Link href="/login" className="text-slate-400 hover:text-sky-200 underline underline-offset-4">Sign in</Link>
+            {authLoading ? null : user ? (
+              <>
+                <span className="text-slate-400">Hi, {user.name || user.email}</span>
+                <Link href="/profile" className="text-sky-300 hover:text-sky-100">Profile</Link>
+                <button
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    refresh();
+                  }}
+                  className="text-slate-400 hover:text-red-300 underline underline-offset-4"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="text-slate-400 hover:text-sky-200 underline underline-offset-4">Sign in</Link>
+            )}
           </nav>
         </div>
       </header>
@@ -257,7 +287,7 @@ export default function AudioPage() {
                           onClick={() => openLink(it.url, it.identifier)}
                           className="inline-flex items-center px-4 py-2 bg-sky-500 text-slate-950 rounded-lg text-sm font-semibold hover:bg-sky-400 transition"
                         >
-                          Download for Offline Learning
+                          Download for Offline Access
                         </button>
                       )}
                     </div>
@@ -266,8 +296,28 @@ export default function AudioPage() {
               </div>
             )}
 
-            <div className="pt-4 flex items-center justify-between text-sm text-slate-400">
-              <div>Page {page} / {totalPages}</div>
+            <div className="pt-4 flex items-center justify-between text-sm text-slate-400 gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span>Page {page} / {totalPages}</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value.replace(/[^0-9]/g, ""))}
+                    onKeyDown={(e) => e.key === "Enter" && goToPage()}
+                    className="w-20 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:border-sky-400 focus:outline-none"
+                    aria-label="Go to page"
+                  />
+                  <button
+                    onClick={goToPage}
+                    className="px-3 py-2 rounded-lg bg-sky-500 text-slate-950 font-semibold hover:bg-sky-400 transition"
+                  >
+                    Go
+                  </button>
+                </div>
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
