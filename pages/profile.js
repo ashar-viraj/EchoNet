@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import ContactUs from "@/components/ContactUs";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/profile");
@@ -28,12 +29,11 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     loadProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadProfile]);
 
   const save = async (e) => {
     e.preventDefault();
@@ -70,7 +70,7 @@ export default function ProfilePage() {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold">EchoNet</Link>
           <nav className="space-x-4 text-gray-300">
-            <Link href="/text">Text</Link>
+            <Link href="/text">Books</Link>
             <Link href="/image">Image</Link>
             <Link href="/movies">Movies</Link>
             <Link href="/audio">Audio</Link>
@@ -135,6 +135,8 @@ export default function ProfilePage() {
           )}
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 }

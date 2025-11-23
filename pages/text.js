@@ -1,7 +1,8 @@
-// pages/text.js
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "./_app";
+import ContactUs from "@/components/ContactUs";
+import featuredBooks from "@/data/featuredBooks";
 
 export default function TextPage() {
   const { user, loading: authLoading, refresh } = useAuth();
@@ -27,7 +28,7 @@ export default function TextPage() {
     setPageInput(String(page));
   }, [page]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const p = new URLSearchParams({ page: String(page), limit: String(perPage), ...(search ? { search } : {}) });
     Object.keys(filters).forEach((k) => {
@@ -49,7 +50,11 @@ export default function TextPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, page, search]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const changeFilter = (k, v) => {
     setFilters((prev) => {
@@ -69,22 +74,31 @@ export default function TextPage() {
     return `${b} B`;
   };
 
-  const recordClick = async (identifier) => {
-    if (!identifier) return;
+  const readAloud = (text) => {
+    if (typeof window === "undefined" || !text) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const recordClick = async (item) => {
+    if (!item || !item.identifier) return;
+    const fallbackUrl = item.url || item.textUrl || item.audioUrl || `/text#featured-${item.identifier}`;
+    const { identifier, title, description, language } = item;
     try {
       await fetch('/api/track-click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier })
+        body: JSON.stringify({ identifier, title, description, language, url: fallbackUrl })
       });
     } catch (err) {
       console.warn('Click track failed', err);
     }
   };
 
-  const openLink = async (url, identifier) => {
+  const openLink = async (url, item) => {
     if (!url) return;
-    await recordClick(identifier);
+    await recordClick(item);
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -102,7 +116,7 @@ export default function TextPage() {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-semibold tracking-tight text-sky-200">EchoNet</Link>
           <nav className="flex items-center gap-4 text-sm text-slate-400">
-            <Link href="/text" className="hover:text-sky-200">Text</Link>
+            <Link href="/text" className="hover:text-sky-200">Books</Link>
             <Link href="/image" className="hover:text-sky-200">Image</Link>
             <Link href="/movies" className="hover:text-sky-200">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200">Audio</Link>
@@ -119,7 +133,7 @@ export default function TextPage() {
             <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/40">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-sm uppercase tracking-[0.08em] text-slate-300">Filters</h3>
-                <span className="text-[11px] px-2 py-1 rounded-full bg-slate-800 text-slate-400">Text</span>
+                <span className="text-[11px] px-2 py-1 rounded-full bg-slate-800 text-slate-400">Books</span>
               </div>
 
               <div className="space-y-3">
@@ -197,7 +211,7 @@ export default function TextPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Library</p>
-                <h1 className="text-3xl font-semibold text-slate-50">Text</h1>
+                <h1 className="text-3xl font-semibold text-slate-50">Books</h1>
                 <div className="text-sm text-slate-400 mt-1">Found {total} items</div>
               </div>
               <div>
@@ -214,6 +228,50 @@ export default function TextPage() {
                   <option value="size_desc">Size (Large to Small)</option>
                   <option value="size_asc">Size (Small to Large)</option>
                 </select>
+              </div>
+            </div>
+
+            <div id="featured-audio" className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-lg shadow-black/40">
+              <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Featured audiobooks</p>
+                  <h2 className="text-xl font-semibold text-sky-100">Listen or read these first</h2>
+                </div>
+                <span className="text-[11px] px-2 py-1 rounded-full bg-emerald-600/20 text-emerald-200 border border-emerald-500/40">
+                  10 ready-to-listen titles
+                </span>
+              </div>
+              <div className="grid gap-3">
+                {featuredBooks.map((book) => (
+                  <div id={`featured-${book.identifier}`} key={book.identifier} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sky-100">{book.title}</div>
+                      <div className="text-sm text-slate-300">{book.author}</div>
+                      <p className="text-sm text-slate-400 line-clamp-2 mt-1">{book.description}</p>
+                      <div className="text-xs text-slate-500 mt-1">Language: {book.language}</div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        className="px-3 py-2 bg-emerald-500 text-black rounded-lg text-sm font-semibold hover:bg-emerald-400"
+                        onClick={() => openLink(book.audioUrl, { ...book, url: `/text#featured-${book.identifier}` })}
+                      >
+                        Listen (Audiobook)
+                      </button>
+                      <button
+                        className="px-3 py-2 bg-sky-600 text-black rounded-lg text-sm font-semibold hover:bg-sky-500"
+                        onClick={() => openLink(book.textUrl, { ...book, url: `/text#featured-${book.identifier}` })}
+                      >
+                        Read the Book
+                      </button>
+                      <button
+                        onClick={() => readAloud(`${book.title}. ${book.description}`)}
+                        className="px-3 py-2 bg-slate-800 text-slate-100 rounded-lg text-sm border border-slate-700 hover:border-sky-400"
+                      >
+                        Read aloud
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -259,7 +317,7 @@ export default function TextPage() {
                       {it.url && (
                         <button
                           className="text-sky-300 text-sm font-medium hover:text-sky-200"
-                          onClick={() => openLink(it.url, it.identifier)}
+                          onClick={() => openLink(it.url, it)}
                         >
                           Open
                         </button>
@@ -269,12 +327,18 @@ export default function TextPage() {
                     <div className="mt-4">
                       {it.url && (
                         <button
-                          onClick={() => openLink(it.url, it.identifier)}
+                          onClick={() => openLink(it.url, it)}
                           className="inline-flex items-center px-4 py-2 bg-sky-500 text-slate-950 rounded-lg text-sm font-semibold hover:bg-sky-400 transition"
                         >
-                          Download for Offline Access
+                          Download book
                         </button>
                       )}
+                      <button
+                        onClick={() => readAloud(`${it.title}. ${it.description || ""}`)}
+                        className="inline-flex items-center px-4 py-2 bg-slate-800 text-slate-100 rounded-lg text-sm font-semibold border border-slate-700 hover:border-sky-400 ml-3"
+                      >
+                        Read aloud
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -323,6 +387,8 @@ export default function TextPage() {
           </section>
         </div>
       </main>
+
+      <ContactUs compact />
     </div>
   );
 

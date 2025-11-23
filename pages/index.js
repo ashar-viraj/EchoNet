@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./_app";
+import ContactUs from "@/components/ContactUs";
 
 export default function Home() {
   const { user, loading: authLoading, refresh } = useAuth();
@@ -18,9 +19,9 @@ export default function Home() {
   const [lowData, setLowData] = useState(false);
 
   const categories = [
-    { name: "Text", path: "/text" },
-    { name: "Image", path: "/image" },
     { name: "Movies", path: "/movies" },
+    { name: "Image", path: "/image" },
+    { name: "Books", path: "/text" },
     { name: "Audio", path: "/audio" },
     { name: "Software", path: "/software" },
   ];
@@ -73,22 +74,24 @@ export default function Home() {
     return n;
   };
 
-  const recordClick = async (identifier) => {
+  const recordClick = async (item) => {
+    const { identifier, title, description, language, url } = item || {};
+    if (!identifier) return;
     if (!identifier) return;
     try {
       await fetch('/api/track-click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier })
+        body: JSON.stringify({ identifier, title, description, language, url })
       });
     } catch (err) {
       console.warn('Click track failed', err);
     }
   };
 
-  const openLink = async (url, identifier) => {
+  const openLink = async (url, item) => {
     if (!url) return;
-    await recordClick(identifier);
+    await recordClick(item);
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -114,7 +117,7 @@ export default function Home() {
             </div>
           </div>
           <nav className="flex items-center gap-4 text-sm text-slate-300">
-            <Link href="/text" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Text</Link>
+            <Link href="/text" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Books</Link>
             <Link href="/image" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Image</Link>
             <Link href="/movies" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Audio</Link>
@@ -373,6 +376,8 @@ export default function Home() {
           </section>
         </div>
       </main>
+
+      <ContactUs />
 
       <footer className="bg-slate-950/80 border-t border-slate-800 py-6 text-center text-slate-400 relative z-10">
         Access for all · EchoNet {new Date().getFullYear()}
