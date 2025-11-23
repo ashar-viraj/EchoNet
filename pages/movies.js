@@ -1,5 +1,4 @@
-// pages/movies.js
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import ContactUs from "@/components/ContactUs";
 
@@ -26,7 +25,7 @@ export default function MoviesPage() {
     setPageInput(String(page));
   }, [page]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const p = new URLSearchParams({ page: String(page), limit: String(perPage), ...(search ? { search } : {}) });
     Object.keys(filters).forEach((k) => {
@@ -48,7 +47,11 @@ export default function MoviesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, page, search]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const changeFilter = (k, v) => {
     setFilters((prev) => {

@@ -19,9 +19,9 @@ export default function Home() {
   const [lowData, setLowData] = useState(false);
 
   const categories = [
-    { name: "Books", path: "/text" },
-    { name: "Image", path: "/image" },
     { name: "Movies", path: "/movies" },
+    { name: "Image", path: "/image" },
+    { name: "Books", path: "/text" },
     { name: "Audio", path: "/audio" },
     { name: "Software", path: "/software" },
   ];

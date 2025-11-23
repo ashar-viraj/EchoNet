@@ -1,5 +1,4 @@
-// pages/audio.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "./_app";
 import ContactUs from "@/components/ContactUs";
@@ -28,7 +27,7 @@ export default function AudioPage() {
     setPageInput(String(page));
   }, [page]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const p = new URLSearchParams({ page: String(page), limit: String(perPage), ...(search ? { search } : {}) });
     Object.keys(filters).forEach((k) => {
@@ -50,7 +49,11 @@ export default function AudioPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, page, search]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const changeFilter = (k, v) => {
     setFilters((prev) => {

@@ -3,7 +3,7 @@ import { useState } from "react";
 export default function ContactUs({ compact = false }) {
   const [sender, setSender] = useState("");
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [mailWarning, setMailWarning] = useState(false);
 
