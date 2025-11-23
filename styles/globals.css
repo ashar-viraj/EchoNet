@@ -24,3 +24,56 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Rustic theme utilities */
+.theme-rustic {
+  color: #2f1810;
+  background: linear-gradient(145deg, #f5e6d3, #d2b48c);
+}
+.bg-gradient-rustic {
+  background: linear-gradient(to right, #8b4513, #a0522d);
+}
+.text-gradient-rustic {
+  background: linear-gradient(to right, #8b4513, #c07171);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.border-rustic {
+  border-color: rgba(139, 69, 19, 0.2);
+}
+.bg-rustic-translucent {
+  background-color: rgba(245, 230, 211, 0.95);
+  backdrop-filter: blur(8px);
+}
+.bg-rustic-card {
+  background-color: rgba(245, 230, 211, 0.9);
+  box-shadow: 0 4px 6px -1px rgba(47, 24, 16, 0.1), 0 2px 4px -1px rgba(47, 24, 16, 0.06);
+}
+.text-rustic-dark {
+  color: #2f1810;
+}
+.text-rustic-muted {
+  color: #a0522d;
+}
+.animate-pop {
+  animation: pop 0.8s ease forwards;
+}
+@keyframes pop {
+  0% { transform: translateY(12px) scale(0.96); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.animate-rise {
+  animation: rise 1s ease forwards;
+}
+@keyframes rise {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.card-line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}

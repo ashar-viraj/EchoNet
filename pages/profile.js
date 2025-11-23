@@ -65,54 +65,60 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <header className="bg-gray-800 border-b border-gray-700">
+    <div className="min-h-screen theme-rustic text-rustic-dark flex flex-col">
+      <header className="bg-rustic-translucent border-b border-rustic shadow sticky top-0 z-20">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-lg font-semibold">EchoNet</Link>
-          <nav className="space-x-4 text-gray-300">
-            <Link href="/text">Books</Link>
-            <Link href="/image">Image</Link>
-            <Link href="/movies">Movies</Link>
-            <Link href="/audio">Audio</Link>
-            <Link href="/software">Software</Link>
-            <button onClick={logout} className="text-sm text-cyan-300">Sign out</button>
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/echonet-logo.svg" alt="EchoNet" className="w-32 h-auto drop-shadow" />
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.14em] text-rustic-muted">EchoNet</p>
+              <p className="text-xl font-semibold text-gradient-rustic leading-none">Library for Everyone</p>
+            </div>
+          </Link>
+          <nav className="flex items-center gap-4 text-sm text-rustic-muted">
+            <Link href="/text" className="hover:text-rustic-dark transition-transform duration-300 hover:-translate-y-0.5">Books</Link>
+            <Link href="/image" className="hover:text-rustic-dark transition-transform duration-300 hover:-translate-y-0.5">Image</Link>
+            <Link href="/movies" className="hover:text-rustic-dark transition-transform duration-300 hover:-translate-y-0.5">Movies</Link>
+            <Link href="/audio" className="hover:text-rustic-dark transition-transform duration-300 hover:-translate-y-0.5">Audio</Link>
+            <Link href="/software" className="hover:text-rustic-dark transition-transform duration-300 hover:-translate-y-0.5">Software</Link>
+            <button onClick={logout} className="text-sm text-gradient-rustic hover:opacity-80">Sign out</button>
           </nav>
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-10 max-w-3xl">
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-          <h1 className="text-2xl font-semibold mb-2">Your profile</h1>
-          <p className="text-sm text-gray-400 mb-6">Edit your info for offline learning outreach.</p>
+      <main className="container mx-auto px-6 py-10 max-w-3xl flex-1 w-full">
+        <div className="bg-rustic-card border border-rustic rounded-2xl p-6 shadow-lg">
+          <h1 className="text-2xl font-semibold mb-2 text-rustic-dark">Your profile</h1>
+          <p className="text-sm text-rustic-muted mb-6">Edit your info for offline learning outreach.</p>
 
-          {error && <div className="mb-4 text-sm text-red-400">{error}</div>}
+          {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
           {loading ? (
-            <div className="text-gray-300">Loading profile...</div>
+            <div className="text-rustic-muted">Loading profile...</div>
           ) : (
             <form onSubmit={save} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-300">Name</label>
+                  <label className="text-sm text-rustic-muted">Name</label>
                   <input
-                    className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+                    className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-300">Email</label>
+                  <label className="text-sm text-rustic-muted">Email</label>
                   <input
-                    className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-gray-400"
+                    className="w-full mt-1 px-3 py-2 rounded-lg bg-white/85 border border-rustic text-rustic-muted"
                     value={user?.email || ""}
                     disabled
                   />
                 </div>
               </div>
               <div>
-                <label className="text-sm text-gray-300">Bio</label>
+                <label className="text-sm text-rustic-muted">Bio</label>
                 <textarea
-                  className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+                  className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
                   rows={3}
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
@@ -123,11 +129,11 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-cyan-600 text-black rounded font-medium hover:bg-cyan-500 disabled:opacity-60"
+                  className="px-4 py-2 bg-gradient-rustic text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-60 transition shadow"
                 >
                   {saving ? "Saving..." : "Save changes"}
                 </button>
-                <button type="button" onClick={logout} className="text-sm text-gray-300 underline">
+                <button type="button" onClick={logout} className="text-sm text-rustic-muted underline hover:text-rustic-dark">
                   Sign out
                 </button>
               </div>
@@ -138,8 +144,8 @@ export default function ProfilePage() {
 
       <ContactUs />
 
-      <footer className="bg-slate-950/80 border-t border-slate-800 py-6 text-center text-slate-400 relative z-10">
-        Access for all · EchoNet {new Date().getFullYear()}
+      <footer className="bg-rustic-translucent border-t border-rustic py-6 text-center text-rustic-muted relative z-10">
+        Access for all - EchoNet {new Date().getFullYear()}
       </footer>
     </div>
   );
