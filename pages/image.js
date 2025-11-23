@@ -16,7 +16,7 @@ export default function ImagesPage() {
   const perPage = 20;
 
   useEffect(() => {
-    try { setLowData(localStorage.getItem("lowData") === "true"); } catch {}
+    try { setLowData(localStorage.getItem("lowData") === "true"); } catch { }
     fetchData();
   }, [page, filters, search]);
 
@@ -164,11 +164,10 @@ export default function ImagesPage() {
                           if (cur.includes(s)) cur.splice(cur.indexOf(s), 1); else cur.push(s);
                           changeFilter('subject', cur.length ? cur : null);
                         }}
-                        className={`px-3 py-1.5 text-xs rounded-full border transition ${
-                          sel
+                        className={`px-3 py-1.5 text-xs rounded-full border transition ${sel
                             ? 'bg-sky-500/20 border-sky-400 text-sky-100'
                             : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-                        }`}
+                          }`}
                       >
                         {s}
                       </button>
