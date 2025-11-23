@@ -19,7 +19,7 @@ export default function TextPage() {
   const perPage = 20;
 
   useEffect(() => {
-    try { setLowData(localStorage.getItem("lowData") === "true"); } catch {}
+    try { setLowData(localStorage.getItem("lowData") === "true"); } catch { }
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filters, search]);
@@ -177,11 +177,10 @@ export default function TextPage() {
                           if (cur.includes(s)) cur.splice(cur.indexOf(s), 1); else cur.push(s);
                           changeFilter('subject', cur.length ? cur : null);
                         }}
-                        className={`px-3 py-1.5 text-xs rounded-full border transition ${
-                          sel
+                        className={`px-3 py-1.5 text-xs rounded-full border transition ${sel
                             ? 'bg-sky-500/20 border-sky-400 text-sky-100'
                             : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'
-                        }`}
+                          }`}
                       >
                         {s}
                       </button>
