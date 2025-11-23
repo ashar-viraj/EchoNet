@@ -113,9 +113,11 @@ export default function Home() {
       <header className="bg-slate-950/70 backdrop-blur border-b border-slate-800 sticky top-0 z-20">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-sky-500/25 border border-sky-400/40 flex items-center justify-center animate-pop">
-              <span className="text-sky-50 font-bold">Ed</span>
-            </div>
+            <img
+              src="/echonet-logo.svg"
+              alt="EchoNet"
+              className="w-40 h-auto animate-pop"
+            />
             <div>
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">EchoNet</p>
               <h1 className="text-3xl font-bold text-sky-100 leading-none">Library for Everyone</h1>
