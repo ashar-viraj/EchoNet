@@ -223,7 +223,7 @@ export default function Home() {
 
                       {it.url && (
                         <button
-                          onClick={() => openLink(it.url, it.identifier)}
+                          onClick={() => openLink(it.url, it)}
                           className="text-sky-300 text-sm mt-2 inline-block hover:underline"
                         >
                           Download
@@ -313,7 +313,7 @@ export default function Home() {
 
                       {it.url && (
                         <button
-                          onClick={() => openLink(it.url, it.identifier)}
+                          onClick={() => openLink(it.url, it)}
                           className="text-emerald-300 text-sm mt-2 inline-block hover:underline"
                         >
                           Open

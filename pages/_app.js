@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import { useEffect, useState, createContext, useContext } from "react";
+import Chatbot from "@/components/Chatbot";
 
 const AuthContext = createContext({ user: null, loading: true, refresh: () => {} });
 
@@ -35,6 +36,7 @@ export default function App({ Component, pageProps }) {
   return (
     <AuthContext.Provider value={{ user, loading, refresh }}>
       <Component {...pageProps} />
+      <Chatbot />
     </AuthContext.Provider>
   );
 }
