@@ -17,6 +17,7 @@ export default function Home() {
   const pageSize = 10;
   const [loading, setLoading] = useState(true);
   const [lowData, setLowData] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const categories = [
     { name: "Movies", path: "/movies" },
@@ -56,14 +57,18 @@ export default function Home() {
       setShowSearchResults(false);
       return;
     }
+    setSearchLoading(true);
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
       const data = await res.json();
       setSearchResults(data.results || []);
       setShowSearchResults(true);
-    } catch {
+    } catch (err) {
       setSearchResults([]);
       setShowSearchResults(true);
+      console.warn("Search failed", err);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -143,37 +148,65 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Mission Banner */}
+      {/* Mission Banner + Search */}
       <section className="container mx-auto px-6 py-8 relative z-10">
         <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-2xl shadow-slate-950/60 animate-rise">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex-1">
               <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Open library</p>
               <h2 className="text-3xl font-semibold text-sky-100">Open knowledge for everyone</h2>
               <p className="text-sm text-slate-300 mt-2">
                 Download, share, and enjoy—free, offline-ready resources for all.
               </p>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-slate-300">
-              <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700">
-                <input
-                  type="checkbox"
-                  checked={lowData}
-                  onChange={(e) => {
-                    setLowData(e.target.checked);
-                    localStorage.setItem("lowData", e.target.checked ? "true" : "false");
-                  }}
-                  className="accent-sky-400"
-                />
-                Low Data Mode
-              </label>
-              <span className="px-3 py-2 rounded-lg bg-sky-500/15 border border-sky-400/30">Free access</span>
-              <span className="px-3 py-2 rounded-lg bg-purple-500/15 border border-purple-400/30">Community</span>
+              <form onSubmit={handleSearch} className="mt-4 flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 relative">
+                  <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search books, movies, audio, software..."
+                    className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 shadow-inner"
+                  />
+                  {searchLoading && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Searching...</span>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  className="px-5 py-3 rounded-xl bg-sky-500 text-slate-950 font-semibold hover:bg-sky-400 transition shadow-lg"
+                >
+                  Search
+                </button>
+              </form>
+              {showSearchResults && (
+                <div className="mt-3 bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-2 max-h-64 overflow-y-auto">
+                  {searchResults.length === 0 && (
+                    <div className="text-sm text-slate-400">No results found.</div>
+                  )}
+                  {searchResults.map((r, idx) => (
+                    <div
+                      key={`${r.identifier || idx}`}
+                      className="p-3 rounded-lg bg-slate-800/70 border border-slate-700 hover:border-sky-500/50 transition"
+                    >
+                      <div className="text-sm font-semibold text-slate-100">{r.title || "Untitled"}</div>
+                      <div className="text-xs text-slate-400 line-clamp-2">{r.description || r.language || "No description"}</div>
+                      {r.url && (
+                        <button
+                          onClick={() => openLink(r.url, r)}
+                          className="mt-2 text-sky-300 text-xs hover:text-sky-200"
+                        >
+                          Open
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
+      
       <main className="flex-1 container mx-auto px-6 pb-12 relative z-10">
         {/* Categories */}
         <section className="mb-12">
