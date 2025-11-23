@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 120" role="img" aria-labelledby="title desc">
+  <title id="title">EchoNet Logo</title>
+  <desc id="desc">EchoNet wordmark with stylized circular echo marks.</desc>
+  <defs>
+    <linearGradient id="g1" x1="0%" x2="100%" y1="0%" y2="0%">
+      <stop stop-color="#38bdf8" offset="0%"/>
+      <stop stop-color="#0ea5e9" offset="50%"/>
+      <stop stop-color="#6366f1" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" x2="0%" y1="0%" y2="100%">
+      <stop stop-color="#0ea5e9" offset="0%"/>
+      <stop stop-color="#22c55e" offset="100%"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="4" dy="4" stdDeviation="8" flood-color="#0ea5e9" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="320" height="120" rx="18" fill="#0b1224"/>
+  <g transform="translate(28 24)" filter="url(#shadow)">
+    <circle cx="32" cy="36" r="28" fill="none" stroke="url(#g1)" stroke-width="8"/>
+    <circle cx="32" cy="36" r="16" fill="none" stroke="url(#g2)" stroke-width="6" opacity="0.9"/>
+    <circle cx="32" cy="36" r="6" fill="#38bdf8"/>
+    <path d="M74 18 h18 v36 h-18 z" fill="url(#g1)" rx="4" ry="4" opacity="0.9"/>
+    <path d="M102 18 h18 v36 h-18 z" fill="url(#g2)" rx="4" ry="4" opacity="0.9"/>
+  </g>
+  <g transform="translate(150 72)" fill="#e2e8f0" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="700">
+    <text font-size="32" letter-spacing="1.5">Echo</text>
+    <text x="90" font-size="32" letter-spacing="1.5" fill="url(#g1)">Net</text>
+    <text y="22" font-size="12" font-weight="500" letter-spacing="3" fill="#94a3b8">OPEN LIBRARY</text>
+  </g>
+</svg>

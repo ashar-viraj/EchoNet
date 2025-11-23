@@ -37,23 +37,23 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center px-4 py-10">
-      <div className="max-w-md w-full bg-gray-800 border border-gray-700 rounded-xl p-8">
+    <div className="min-h-screen theme-rustic text-rustic-dark flex flex-col items-center justify-center px-4 py-10">
+      <div className="max-w-md w-full bg-rustic-card border border-rustic rounded-2xl p-8 shadow-lg">
         <div className="flex items-center justify-between mb-6">
-          <Link href="/" className="text-xl font-semibold">EchoNet</Link>
-          <Link href="/login" className="text-sm text-cyan-300">Have an account?</Link>
+          <Link href="/" className="flex items-center gap-2 text-xl font-semibold text-gradient-rustic">EchoNet</Link>
+          <Link href="/login" className="text-sm text-rustic-muted hover:text-rustic-dark underline underline-offset-4">Have an account?</Link>
         </div>
 
-        <h1 className="text-2xl font-semibold mb-2">Create an account</h1>
-        <p className="text-sm text-gray-400 mb-6">Set up your profile to personalize EchoNet.</p>
+        <h1 className="text-2xl font-semibold mb-2 text-rustic-dark">Create an account</h1>
+        <p className="text-sm text-rustic-muted mb-6">Set up your profile to personalize EchoNet.</p>
 
-        {error && <div className="mb-4 text-sm text-red-400">{error}</div>}
+        {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="text-sm text-gray-300">Name</label>
+            <label className="text-sm text-rustic-muted">Name</label>
             <input
-              className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+              className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
               value={name}
               onChange={(e) => setName(e.target.value)}
               type="text"
@@ -62,9 +62,9 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="text-sm text-gray-300">Phone / Number</label>
+            <label className="text-sm text-rustic-muted">Phone / Number</label>
             <input
-              className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+              className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               type="tel"
@@ -72,9 +72,9 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="text-sm text-gray-300">Address</label>
+            <label className="text-sm text-rustic-muted">Address</label>
             <textarea
-              className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+              className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               rows={2}
@@ -83,9 +83,9 @@ export default function SignupPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm text-gray-300">Age</label>
+              <label className="text-sm text-rustic-muted">Age</label>
               <input
-                className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+                className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
                 type="number"
@@ -94,9 +94,9 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label className="text-sm text-gray-300">Gender</label>
+              <label className="text-sm text-rustic-muted">Gender</label>
               <select
-                className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+                className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
               >
@@ -109,9 +109,9 @@ export default function SignupPage() {
             </div>
           </div>
           <div>
-            <label className="text-sm text-gray-300">Email</label>
+            <label className="text-sm text-rustic-muted">Email</label>
             <input
-              className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+              className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="email"
@@ -119,10 +119,10 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="text-sm text-gray-300">Password</label>
+            <label className="text-sm text-rustic-muted">Password</label>
             <div className="relative">
               <input
-                className="w-full mt-1 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-white pr-24"
+                className="w-full mt-1 px-3 py-2 rounded-lg bg-white/90 border border-rustic text-rustic-dark pr-24 placeholder:text-rustic-muted focus:outline-none focus:ring-1 focus:ring-[rgba(139,69,19,0.35)]"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type={showPassword ? "text" : "password"}
@@ -131,7 +131,7 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                className="absolute inset-y-1 right-1 px-2 text-xs text-gray-200 bg-gray-600 rounded hover:bg-gray-500"
+                className="absolute inset-y-1 right-1 px-2 text-xs text-rustic-dark bg-white/85 border border-rustic rounded hover:bg-rustic-card transition"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
@@ -140,12 +140,18 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-cyan-600 text-black rounded font-medium hover:bg-cyan-500 disabled:opacity-60"
+            className="w-full py-2 bg-gradient-rustic text-white rounded-lg font-semibold hover:opacity-90 disabled:opacity-60 transition shadow"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
       </div>
+
+      <ContactUs />
+
+      <footer className="bg-rustic-translucent border-t border-rustic py-6 text-center text-rustic-muted relative z-10 w-full">
+        Access for all - EchoNet {new Date().getFullYear()}
+      </footer>
     </div>
   );
 }
