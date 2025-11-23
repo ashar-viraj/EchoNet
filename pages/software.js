@@ -1,6 +1,6 @@
-// pages/software.js
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import ContactUs from "@/components/ContactUs";
 
 export default function SoftwarePage() {
   const [items, setItems] = useState([]);
@@ -8,6 +8,7 @@ export default function SoftwarePage() {
   const [filters, setFilters] = useState({});
   const [availableFilters, setAvailableFilters] = useState({ languages: [], subjects: [], years: [] });
   const [page, setPage] = useState(1);
+  const [pageInput, setPageInput] = useState("1");
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
@@ -20,7 +21,11 @@ export default function SoftwarePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filters, search]);
 
-  const fetchData = async () => {
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const p = new URLSearchParams({ page: String(page), limit: String(perPage), ...(search ? { search } : {}) });
     Object.keys(filters).forEach((k) => {
@@ -42,7 +47,11 @@ export default function SoftwarePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, page, search]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const changeFilter = (k, v) => {
     setFilters((prev) => {
@@ -81,13 +90,21 @@ export default function SoftwarePage() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const goToPage = () => {
+    const nextPage = parseInt(pageInput, 10);
+    if (Number.isNaN(nextPage)) return;
+    const maxPage = Math.max(1, totalPages || 1);
+    const clamped = Math.min(Math.max(1, nextPage), maxPage);
+    setPage(clamped);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       <header className="bg-slate-950/70 backdrop-blur border-b border-slate-800">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-semibold tracking-tight text-sky-200">EchoNet</Link>
           <nav className="flex items-center gap-4 text-sm text-slate-400">
-            <Link href="/text" className="hover:text-sky-200">Text</Link>
+            <Link href="/text" className="hover:text-sky-200">Books</Link>
             <Link href="/image" className="hover:text-sky-200">Image</Link>
             <Link href="/movies" className="hover:text-sky-200">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200">Audio</Link>
@@ -257,7 +274,7 @@ export default function SoftwarePage() {
                           onClick={() => openLink(it.url, it.identifier)}
                           className="inline-flex items-center px-4 py-2 bg-sky-500 text-slate-950 rounded-lg text-sm font-semibold hover:bg-sky-400 transition"
                         >
-                          Download for Offline Learning
+                          Download for Offline Access
                         </button>
                       )}
                     </div>
@@ -266,8 +283,28 @@ export default function SoftwarePage() {
               </div>
             )}
 
-            <div className="pt-4 flex items-center justify-between text-sm text-slate-400">
-              <div>Page {page} / {totalPages}</div>
+            <div className="pt-4 flex items-center justify-between text-sm text-slate-400 gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <span>Page {page} / {totalPages}</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value.replace(/[^0-9]/g, ""))}
+                    onKeyDown={(e) => e.key === "Enter" && goToPage()}
+                    className="w-20 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:border-sky-400 focus:outline-none"
+                    aria-label="Go to page"
+                  />
+                  <button
+                    onClick={goToPage}
+                    className="px-3 py-2 rounded-lg bg-sky-500 text-slate-950 font-semibold hover:bg-sky-400 transition"
+                  >
+                    Go
+                  </button>
+                </div>
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -288,6 +325,12 @@ export default function SoftwarePage() {
           </section>
         </div>
       </main>
+
+      <ContactUs />
+
+      <footer className="bg-slate-950/80 border-t border-slate-800 py-6 text-center text-slate-400 relative z-10">
+        Access for all · EchoNet {new Date().getFullYear()}
+      </footer>
     </div>
   );
 }

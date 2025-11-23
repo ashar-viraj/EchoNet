@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import ContactUs from "@/components/ContactUs";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center px-4 py-10">
       <div className="max-w-md w-full bg-gray-800 border border-gray-700 rounded-xl p-8">
         <div className="flex items-center justify-between mb-6">
           <Link href="/" className="text-xl font-semibold">EchoNet</Link>

@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "./_app";
+import ContactUs from "@/components/ContactUs";
 
 export default function Home() {
+  const { user, loading: authLoading, refresh } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [topViewed, setTopViewed] = useState([]);
   const [topClicked, setTopClicked] = useState([]);
+  const [openViewed, setOpenViewed] = useState(null);
+  const [openClicked, setOpenClicked] = useState(null);
+  const [topViewedPage, setTopViewedPage] = useState(1);
+  const [topClickedPage, setTopClickedPage] = useState(1);
+  const pageSize = 10;
   const [loading, setLoading] = useState(true);
   const [lowData, setLowData] = useState(false);
 
   const categories = [
-    { name: "Text", path: "/text" },
-    { name: "Image", path: "/image" },
     { name: "Movies", path: "/movies" },
+    { name: "Image", path: "/image" },
+    { name: "Books", path: "/text" },
     { name: "Audio", path: "/audio" },
     { name: "Software", path: "/software" },
   ];
@@ -36,6 +44,11 @@ export default function Home() {
       setLowData(ld);
     } catch { }
   }, []);
+
+  useEffect(() => {
+    setTopViewedPage(1);
+    setTopClickedPage(1);
+  }, [topViewed.length, topClicked.length]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -61,43 +74,36 @@ export default function Home() {
     return n;
   };
 
-  const recordClick = async (identifier) => {
+  const recordClick = async (item) => {
+    const { identifier, title, description, language, url } = item || {};
+    if (!identifier) return;
     if (!identifier) return;
     try {
       await fetch('/api/track-click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier })
+        body: JSON.stringify({ identifier, title, description, language, url })
       });
     } catch (err) {
       console.warn('Click track failed', err);
     }
   };
 
-  const openLink = async (url, identifier) => {
+  const openLink = async (url, item) => {
     if (!url) return;
-    await recordClick(identifier);
+    await recordClick(item);
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const slicePage = (items, page) => {
+    const start = (page - 1) * pageSize;
+    return items.slice(start, start + pageSize);
   };
 
   return (
     <div className="relative min-h-screen bg-slate-950 text-slate-100 overflow-hidden flex flex-col">
-      {/* Surreal educational sky */}
+      {/* Surreal library sky */}
       <div className="pointer-events-none absolute inset-0 bg-loop mix-blend-screen opacity-80" />
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {[...Array(10)].map((_, i) => (
-          <span
-            key={i}
-            className="absolute w-12 h-12 rounded-full bg-white/8 border border-white/10 floaty"
-            style={{
-              left: `${(i + 1) * 9}%`,
-              top: `${(i % 5) * 18 + 6}%`,
-              animationDelay: `${i * 0.4}s`,
-              animationDuration: `${12 + i * 0.6}s`
-            }}
-          />
-        ))}
-      </div>
 
       <header className="bg-slate-950/70 backdrop-blur border-b border-slate-800 sticky top-0 z-20">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -107,17 +113,32 @@ export default function Home() {
             </div>
             <div>
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">EchoNet</p>
-              <h1 className="text-3xl font-bold text-sky-100 leading-none">Education for Everyone</h1>
+              <h1 className="text-3xl font-bold text-sky-100 leading-none">Library for Everyone</h1>
             </div>
           </div>
           <nav className="flex items-center gap-4 text-sm text-slate-300">
-            <Link href="/text" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Text</Link>
+            <Link href="/text" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Books</Link>
             <Link href="/image" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Image</Link>
             <Link href="/movies" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Audio</Link>
             <Link href="/software" className="hover:text-sky-200 transition-transform duration-300 hover:-translate-y-0.5">Software</Link>
-            <Link href="/profile" className="text-sky-300 hover:text-sky-100 transition">Profile</Link>
-            <Link href="/login" className="text-slate-400 hover:text-sky-200 underline underline-offset-4">Sign in</Link>
+            {authLoading ? null : user ? (
+              <>
+                <span className="text-slate-400">Hi, {user.name || user.email}</span>
+                <Link href="/profile" className="text-sky-300 hover:text-sky-100 transition">Profile</Link>
+                <button
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    refresh();
+                  }}
+                  className="text-slate-400 hover:text-red-300 underline underline-offset-4"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="text-slate-400 hover:text-sky-200 underline underline-offset-4">Sign in</Link>
+            )}
           </nav>
         </div>
       </header>
@@ -127,10 +148,10 @@ export default function Home() {
         <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-2xl shadow-slate-950/60 animate-rise">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Social cause</p>
-              <h2 className="text-3xl font-semibold text-sky-100">Open education for every learner</h2>
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Open library</p>
+              <h2 className="text-3xl font-semibold text-sky-100">Open knowledge for everyone</h2>
               <p className="text-sm text-slate-300 mt-2">
-                Download, share, and uplift—help close education gaps with free, offline-ready resources.
+                Download, share, and enjoy—free, offline-ready resources for all.
               </p>
             </div>
             <div className="flex items-center gap-3 text-sm text-slate-300">
@@ -181,32 +202,85 @@ export default function Home() {
               <div className="p-6 bg-slate-900/70 border border-slate-800 rounded-2xl">Loading...</div>
             ) : (
               <div className="grid gap-4">
-                {topViewed.map((it, i) => (
-                  <div
-                    key={i}
-                    className="p-4 mx-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-sky-500/50 shadow-lg hover:shadow-sky-600/25 transition-all duration-500 hover:-translate-y-1.5"
-                  >
-                    <div className="font-medium card-line-clamp" title={it.title || 'Untitled'}>{it.title || 'Untitled'}</div>
-                    <div className="text-xs text-slate-300 card-line-clamp" title={lowData ? it.language : it.description}>
-                      {lowData ? it.language : it.description}
-                    </div>
+                {slicePage(topViewed, topViewedPage).map((it, i) => {
+                  const id = it.identifier || i;
+                  const isOpen = openViewed === id;
+                  return (
+                    <div
+                      key={i + (topViewedPage - 1) * pageSize}
+                      className="p-4 mx-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-sky-500/50 shadow-lg hover:shadow-sky-600/25 transition-all duration-500 hover:-translate-y-1.5"
+                    >
+                      <div className="font-medium card-line-clamp" title={it.title || 'Untitled'}>{it.title || 'Untitled'}</div>
+                      <div className="text-xs text-slate-300 card-line-clamp" title={lowData ? it.language : it.description}>
+                        {lowData ? it.language : it.description}
+                      </div>
 
-                    <div className="mt-2 text-xs text-slate-400 flex gap-4 flex-wrap">
-                      {it.language && (<span>Lang: {it.language}</span>)}
-                      <span>Downloads: {fmt(it.downloads)}</span>
-                      <span>Size: {it.item_size ? Math.round(it.item_size / 1024) + " KB" : "N/A"}</span>
-                    </div>
+                      <div className="mt-2 text-xs text-slate-400 flex gap-4 flex-wrap">
+                        {it.language && (<span>Lang: {it.language}</span>)}
+                        <span>Downloads: {fmt(it.downloads)}</span>
+                        <span>Size: {it.item_size ? Math.round(it.item_size / 1024) + " KB" : "N/A"}</span>
+                      </div>
 
-                    {it.url && (
+                      {it.url && (
+                        <button
+                          onClick={() => openLink(it.url, it.identifier)}
+                          className="text-sky-300 text-sm mt-2 inline-block hover:underline"
+                        >
+                          Download
+                        </button>
+                      )}
+
                       <button
-                        onClick={() => openLink(it.url, it.identifier)}
-                        className="text-sky-300 text-sm mt-2 inline-block hover:underline"
+                        onClick={() => setOpenViewed(prev => prev === id ? null : id)}
+                        className="m-2 text-xs text-slate-300 hover:text-sky-200"
                       >
-                        Download
+                        {isOpen ? 'Hide details' : 'Show details'}
                       </button>
-                    )}
+
+                      {isOpen && (
+                        <div className="mt-3 text-xs text-slate-300 space-y-1 bg-slate-900/60 border border-slate-800 rounded-lg p-3">
+                          {it.language && <div><span className="text-slate-500">Language:</span> {it.language}</div>}
+                          {it.subject && <div><span className="text-slate-500">Subject:</span> {Array.isArray(it.subject) ? it.subject.join(', ') : it.subject}</div>}
+                          {it.publicdate && <div><span className="text-slate-500">Published:</span> {new Date(it.publicdate).toLocaleDateString()}</div>}
+                          {it.btih && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-slate-500">Magnet:</span>
+                              <a
+                                href={`magnet:?xt=urn:btih:${it.btih}`}
+                                className="text-sky-300 hover:underline truncate"
+                                title={it.btih}
+                              >
+                                magnet:?xt=urn:btih:{it.btih}
+                              </a>
+                            </div>
+                          )}
+                          {it.mediatype && <div><span className="text-slate-500">Type:</span> {it.mediatype}</div>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {topViewed.length > pageSize && (
+                  <div className="flex items-center justify-between text-sm text-slate-400 mx-5">
+                    <span>Page {topViewedPage} / {Math.max(1, Math.ceil(topViewed.length / pageSize))}</span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setTopViewedPage((p) => Math.max(1, p - 1))}
+                        disabled={topViewedPage === 1}
+                        className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setTopViewedPage((p) => Math.min(Math.ceil(topViewed.length / pageSize), p + 1))}
+                        disabled={topViewedPage === Math.ceil(topViewed.length / pageSize)}
+                        className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </section>
@@ -218,40 +292,95 @@ export default function Home() {
               <div className="p-6 bg-slate-900/70 border border-slate-800 rounded-2xl">Loading...</div>
             ) : (
               <div className="grid gap-4">
-                {topClicked.map((it, i) => (
-                  <div
-                    key={`clicked-${i}`}
-                    className="p-4 mx-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-emerald-500/50 shadow-lg hover:shadow-emerald-500/20 transition-all duration-500 hover:-translate-y-1.5"
-                  >
-                    <div className="font-medium card-line-clamp" title={it.title || 'Untitled'}>{it.title || 'Untitled'}</div>
-                    <div className="text-xs text-slate-300 card-line-clamp" title={it.description || it.language}>
-                      {lowData ? it.language : (it.description || 'No description')}
-                    </div>
+                {slicePage(topClicked, topClickedPage).map((it, i) => {
+                  const id = it.identifier || i;
+                  const isOpen = openClicked === id;
+                  return (
+                    <div
+                      key={`clicked-${i + (topClickedPage - 1) * pageSize}`}
+                      className="p-4 mx-5 bg-slate-900/70 border border-slate-800 rounded-2xl hover:border-emerald-500/50 shadow-lg hover:shadow-emerald-500/20 transition-all duration-500 hover:-translate-y-1.5"
+                    >
+                      <div className="font-medium card-line-clamp" title={it.title || 'Untitled'}>{it.title || 'Untitled'}</div>
+                      <div className="text-xs text-slate-300 card-line-clamp" title={it.description || it.language}>
+                        {lowData ? it.language : (it.description || 'No description')}
+                      </div>
 
-                    <div className="mt-2 text-xs text-slate-400 flex gap-4 flex-wrap">
-                      <span>Clicks: {fmt(it.clicks)}</span>
-                      {it.language && (<span>Lang: {it.language}</span>)}
-                      <span>Downloads: {fmt(it.downloads)}</span>
-                    </div>
+                      <div className="mt-2 text-xs text-slate-400 flex gap-4 flex-wrap">
+                        <span>Clicks: {fmt(it.clicks)}</span>
+                        {it.language && (<span>Lang: {it.language}</span>)}
+                        <span>Downloads: {fmt(it.downloads)}</span>
+                      </div>
 
-                    {it.url && (
+                      {it.url && (
+                        <button
+                          onClick={() => openLink(it.url, it.identifier)}
+                          className="text-emerald-300 text-sm mt-2 inline-block hover:underline"
+                        >
+                          Open
+                        </button>
+                      )}
+
                       <button
-                        onClick={() => openLink(it.url, it.identifier)}
-                        className="text-emerald-300 text-sm mt-2 inline-block hover:underline"
+                        onClick={() => setOpenClicked(prev => prev === id ? null : id)}
+                        className="m-2 text-xs text-slate-300 hover:text-emerald-200"
                       >
-                        Open
+                        {isOpen ? 'Hide details' : 'Show details'}
                       </button>
-                    )}
+
+                      {isOpen && (
+                        <div className="mt-3 text-xs text-slate-300 space-y-1 bg-slate-900/60 border border-slate-800 rounded-lg p-3">
+                          {it.language && <div><span className="text-slate-500">Language:</span> {it.language}</div>}
+                          {it.subject && <div><span className="text-slate-500">Subject:</span> {Array.isArray(it.subject) ? it.subject.join(', ') : it.subject}</div>}
+                          {it.publicdate && <div><span className="text-slate-500">Published:</span> {new Date(it.publicdate).toLocaleDateString()}</div>}
+                          {it.btih && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-slate-500">Magnet:</span>
+                              <a
+                                href={`magnet:?xt=urn:btih:${it.btih}`}
+                                className="text-emerald-300 hover:underline truncate"
+                                title={it.btih}
+                              >
+                                magnet:?xt=urn:btih:{it.btih}
+                              </a>
+                            </div>
+                          )}
+                          {it.mediatype && <div><span className="text-slate-500">Type:</span> {it.mediatype}</div>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {topClicked.length > pageSize && (
+                  <div className="flex items-center justify-between text-sm text-slate-400 mx-5">
+                    <span>Page {topClickedPage} / {Math.max(1, Math.ceil(topClicked.length / pageSize))}</span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setTopClickedPage((p) => Math.max(1, p - 1))}
+                        disabled={topClickedPage === 1}
+                        className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setTopClickedPage((p) => Math.min(Math.ceil(topClicked.length / pageSize), p + 1))}
+                        disabled={topClickedPage === Math.ceil(topClicked.length / pageSize)}
+                        className="px-3 py-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </section>
         </div>
       </main>
 
+      <ContactUs />
+
       <footer className="bg-slate-950/80 border-t border-slate-800 py-6 text-center text-slate-400 relative z-10">
-        Education for all · EchoNet {new Date().getFullYear()}
+        Access for all · EchoNet {new Date().getFullYear()}
       </footer>
 
       <style jsx global>{`

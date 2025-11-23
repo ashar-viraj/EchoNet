@@ -1,28 +1,49 @@
-import { query } from '../../lib/db';
+import { query } from "@/lib/db";
+
+async function ensureTable() {
+  await query(`
+    CREATE TABLE IF NOT EXISTS click_stats (
+      identifier TEXT PRIMARY KEY,
+      title TEXT,
+      description TEXT,
+      language TEXT,
+      url TEXT,
+      clicks INTEGER NOT NULL DEFAULT 0,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+}
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).end();
   }
 
-  const { identifier } = req.body || {};
-  if (!identifier || typeof identifier !== 'string') {
-    return res.status(400).json({ error: 'Identifier is required' });
-  }
+  const { identifier, title, description, language, url } = req.body || {};
+  if (!identifier) return res.status(400).json({ error: "identifier is required" });
 
   try {
-    const upsert = `
-      INSERT INTO item_clicks (identifier, click_count, last_clicked)
-      VALUES ($1, 1, NOW())
+    await ensureTable();
+    await query(
+      `
+      INSERT INTO click_stats (identifier, title, description, language, url, clicks, updated_at)
+      VALUES ($1, $2, $3, $4, $5, 1, NOW())
       ON CONFLICT (identifier)
-      DO UPDATE SET click_count = item_clicks.click_count + 1, last_clicked = NOW()
-      RETURNING click_count;
-    `;
-    const result = await query(upsert, [identifier]);
-    const clickCount = result.rows?.[0]?.click_count || 0;
-    return res.status(200).json({ identifier, clickCount });
+      DO UPDATE SET
+        clicks = click_stats.clicks + 1,
+        updated_at = NOW(),
+        title = COALESCE(EXCLUDED.title, click_stats.title),
+        description = COALESCE(EXCLUDED.description, click_stats.description),
+        language = COALESCE(EXCLUDED.language, click_stats.language),
+        url = COALESCE(EXCLUDED.url, click_stats.url);
+      `,
+      [identifier, title || null, description || null, language || null, url || null]
+    );
+
+    return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('track-click error', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("track-click failed", err);
+    return res.status(500).json({ error: "Unable to record click" });
   }
 }
