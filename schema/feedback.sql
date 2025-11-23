@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS feedback (
+  id UUID PRIMARY KEY,
+  sender TEXT,
+  message TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
