@@ -146,9 +146,6 @@ export default function SignupPage() {
           </button>
         </form>
       </div>
-      <div className="w-full max-w-4xl">
-        <ContactUs />
-      </div>
     </div>
   );
 }

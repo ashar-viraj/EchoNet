@@ -326,7 +326,11 @@ export default function SoftwarePage() {
         </div>
       </main>
 
-      <ContactUs compact />
+      <ContactUs />
+
+      <footer className="bg-slate-950/80 border-t border-slate-800 py-6 text-center text-slate-400 relative z-10">
+        Access for all · EchoNet {new Date().getFullYear()}
+      </footer>
     </div>
   );
 }
