@@ -7,8 +7,9 @@ const starterMessages = [
 const quickPrompts = [
   "Find me a sci-fi audiobook",
   "Show popular Hindi books",
-  "How do I download items offline?",
+  "Best books for DBMS",
   "Recommend a family movie night pick",
+  "How to access ML lectures of MIT"
 ];
 
 export default function Chatbot() {
