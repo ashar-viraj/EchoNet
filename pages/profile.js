@@ -71,7 +71,7 @@ export default function ProfilePage() {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold">EchoNet</Link>
           <nav className="space-x-4 text-gray-300">
-            <Link href="/text">Text</Link>
+            <Link href="/text">Books</Link>
             <Link href="/image">Image</Link>
             <Link href="/movies">Movies</Link>
             <Link href="/audio">Audio</Link>

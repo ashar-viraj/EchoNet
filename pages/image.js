@@ -1,5 +1,5 @@
 // pages/image.js
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import ContactUs from "@/components/ContactUs";
 
@@ -25,7 +25,7 @@ export default function ImagesPage() {
     setPageInput(String(page));
   }, [page]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const p = new URLSearchParams({ page: page.toString(), limit: perPage.toString(), ...(search && { search }) });
     Object.keys(filters).forEach((k) => {
@@ -47,7 +47,11 @@ export default function ImagesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, page, search]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const changeFilter = (k, v) => {
     setFilters((prev) => {
@@ -100,7 +104,7 @@ export default function ImagesPage() {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-semibold tracking-tight text-sky-200">EchoNet</Link>
           <nav className="flex items-center gap-4 text-sm text-slate-400">
-            <Link href="/text" className="hover:text-sky-200">Text</Link>
+            <Link href="/text" className="hover:text-sky-200">Books</Link>
             <Link href="/image" className="hover:text-sky-200">Image</Link>
             <Link href="/movies" className="hover:text-sky-200">Movies</Link>
             <Link href="/audio" className="hover:text-sky-200">Audio</Link>
