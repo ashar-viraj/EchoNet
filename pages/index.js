@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "./_app";
 import ContactUs from "@/components/ContactUs";
 
@@ -82,7 +83,6 @@ export default function Home() {
   const recordClick = async (item) => {
     const { identifier, title, description, language, url } = item || {};
     if (!identifier) return;
-    if (!identifier) return;
     try {
       await fetch('/api/track-click', {
         method: 'POST',
@@ -110,10 +110,13 @@ export default function Home() {
       <header className="bg-rustic-translucent border-b border-rustic sticky top-0 z-20 shadow">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img
+            <Image
               src="/echonet-logo.svg"
               alt="EchoNet"
+              width={192}
+              height={64}
               className="w-48 min-w-[12rem] h-auto animate-pop drop-shadow"
+              priority
             />
             <div>
               <p className="text-[11px] uppercase tracking-[0.14em] text-rustic-muted">EchoNet</p>
@@ -419,4 +422,3 @@ export default function Home() {
     </div>
   );
 }
-

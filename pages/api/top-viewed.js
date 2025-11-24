@@ -6,7 +6,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Get top 50 items by downloads (since we don't have views field, using downloads)
         const topQuery = `
             SELECT 
                 identifier,
@@ -27,7 +26,6 @@ export default async function handler(req, res) {
 
         const result = await query(topQuery);
 
-        // Format results to match the original API response
         const items = result.rows.map(row => ({
             identifier: row.identifier,
             title: row.title,
@@ -41,7 +39,7 @@ export default async function handler(req, res) {
             publicdate: row.publicdate,
             url: row.url,
             type: row.mediatype || 'unknown',
-            views: row.downloads // Map downloads to views for backward compatibility
+            views: row.downloads
         }));
 
         return res.status(200).json({ items });

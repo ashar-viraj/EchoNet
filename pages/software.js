@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "./_app";
 import ContactUs from "@/components/ContactUs";
 
@@ -16,16 +17,6 @@ export default function SoftwarePage() {
   const [search, setSearch] = useState("");
   const [lowData, setLowData] = useState(false);
   const perPage = 20;
-
-  useEffect(() => {
-    try { setLowData(localStorage.getItem("lowData") === "true"); } catch { }
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, filters, search]);
-
-  useEffect(() => {
-    setPageInput(String(page));
-  }, [page]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -54,6 +45,14 @@ export default function SoftwarePage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    try { setLowData(localStorage.getItem("lowData") === "true"); } catch { }
+  }, []);
+
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
 
   const changeFilter = (k, v) => {
     setFilters((prev) => {
@@ -105,7 +104,14 @@ export default function SoftwarePage() {
       <header className="bg-rustic-translucent border-b border-rustic shadow sticky top-0 z-20">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <img src="/echonet-logo.svg" alt="EchoNet" className="w-32 h-auto drop-shadow" />
+            <Image
+              src="/echonet-logo.svg"
+              alt="EchoNet"
+              width={128}
+              height={40}
+              className="w-32 h-auto drop-shadow"
+              priority
+            />
             <div>
               <p className="text-[11px] uppercase tracking-[0.14em] text-rustic-muted">EchoNet</p>
               <p className="text-xl font-semibold text-gradient-rustic leading-none">Library for Everyone</p>

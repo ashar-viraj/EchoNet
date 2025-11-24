@@ -16,7 +16,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Persist feedback
     await query(
       "INSERT INTO feedback (id, sender, message) VALUES ($1, $2, $3)",
       [crypto.randomUUID(), sender, message]
@@ -24,7 +23,6 @@ export default async function handler(req, res) {
 
     let mailOk = true;
 
-    // Send feedback to team
     try {
       await sendEmail({
         to: RECIPIENTS.join(","),
@@ -37,7 +35,6 @@ export default async function handler(req, res) {
       mailOk = false;
     }
 
-    // Send acknowledgement to sender if provided and looks like an email
     if (sender && sender.includes("@")) {
       try {
         await sendEmail({

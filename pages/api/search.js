@@ -13,8 +13,6 @@ export default async function handler(req, res) {
     const searchTerm = q.trim();
 
     try {
-        // Search in title and description using PostgreSQL full-text search
-        // Using ILIKE for case-insensitive pattern matching
         const searchQuery = `
             SELECT 
                 identifier,
@@ -47,7 +45,6 @@ export default async function handler(req, res) {
 
         const result = await query(searchQuery, [exactPattern, searchPattern]);
 
-        // Format results to match the original API response
         const results = result.rows.map(row => ({
             identifier: row.identifier,
             title: row.title,

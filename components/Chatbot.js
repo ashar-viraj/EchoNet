@@ -86,8 +86,8 @@ export default function Chatbot() {
     const maxHeight = Math.max(minHeight, Math.min(window.innerHeight - 80, 900));
 
     const onMove = (moveEvt) => {
-      const dx = startX - moveEvt.clientX; // dragging left grows width
-      const dy = moveEvt.clientY - startY; // dragging down grows height
+      const dx = startX - moveEvt.clientX;
+      const dy = moveEvt.clientY - startY;
       const nextWidth = Math.min(maxWidth, Math.max(minWidth, startWidth + dx));
       const nextHeight = Math.min(maxHeight, Math.max(minHeight, startHeight + dy));
       setSize({ width: nextWidth, height: nextHeight });
