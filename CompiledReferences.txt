@@ -1,0 +1,30 @@
+Although all the references are already present in parts in the prjoect. This is just a compiled file wehre we can see the references take.
+Compiled References used for EchoNet:
+Documentations read:
+Next.js docs: https://nextjs.org/docs
+
+Tailwind CSS v4 docs: https://tailwindcss.com/docs
+
+node-postgres + PostgreSQL docs: https://node-postgres.com/
+
+Nodemailer docs: https://nodemailer.com/about/
+
+Open Router docs: https://openrouter.ai/docs/quickstart 
+
+JWT token docs: https://www.jwt.io/introduction 
+
+References:
+OpenRouter chat completions: https://pixicstudio.medium.com/https-dev-to-web-dev-usman-here-how-to-build-a-chatbot-for-free-using-openrouter-and-deepseek-apis-492e-e7edcf6d3e0f
+
+Next.js/Node JWT login + signup with cookies: https://medium.com/search?q=Next.js%20JWT%20authentication%20cookie%20API%20routes
+
+Node.js auth API with bcrypt + PostgreSQL: https://medium.com/search?q=node%20js%20bcrypt%20postgresql%20login%20signup
+
+Web scraping with Python (requests + BeautifulSoup) for NDJSON data: https://medium.com/search?q=python%20requests%20beautifulsoup%20web%20scraping%20ndjson
+
+Web scraping with Python (requests + BeautifulSoup + Selenium alternatives): https://medium.com/search?q=python%20web%20scraping%20beautifulsoup%20selenium%20guide
+
+Sending email via Nodemailer + Gmail SMTP/OAuth2: https://medium.com/search?q=nodemailer%20gmail%20smtp%20oauth2
+
+PostgreSQL connection pooling/queries with node-postgres (pg): https://medium.com/search?q=node-postgres%20pg%20connection%20pool%20async
+
